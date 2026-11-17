@@ -42,3 +42,14 @@ def build_report(run_dir: Path) -> str:
     if s.get("stopped_on_budget"):
         lines += ["", "> Run stopped early: the $5 spend cap was reached."]
     return "\n".join(lines) + "\n"
+
+
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+    p = argparse.ArgumentParser(description="Print the Markdown report for an eval run dir.")
+    p.add_argument("run_dir", type=Path)
+    print(build_report(p.parse_args(argv).run_dir))
+
+
+if __name__ == "__main__":
+    main()

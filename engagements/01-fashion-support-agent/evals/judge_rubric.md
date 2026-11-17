@@ -4,6 +4,9 @@ the source of truth.
 
 - language_quality: Is the reply fluent, natural and correct in the language the customer used (German with the
   formal "Sie", or English)? 5 = reads like a skilled native support agent. 1 = wrong language or hard to read.
+  Product names are proper names and stay German in an English reply ("Sommerkleid aus Leinen"): that is not a
+  language error. A German reply that addresses nobody directly needs no "Sie"; only penalise "du" or a wrong
+  register when the customer is actually addressed.
 - tone: Friendly, calm, concise and professional? Apologises where appropriate, no marketing fluff, no lecturing.
   5 = exactly how a good support team writes. 1 = rude, robotic or rambling.
 - policy_faithfulness: Is everything the assistant says about returns, refunds and shipping consistent with the

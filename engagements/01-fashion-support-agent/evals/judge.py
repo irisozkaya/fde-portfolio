@@ -38,7 +38,7 @@ def judge_conversation(client, scenario: Scenario, turns: list[TurnRecord], poli
                        ledger: SpendLedger | None = None) -> JudgeScores:
     prompt = (f"{_RUBRIC}\n\n<policy>\n{policy_text}\n</policy>\n\n<conversation scenario=\"{scenario.id}\">\n"
               f"{_transcript(turns)}\n</conversation>")
-    response = client.messages.parse(model=JUDGE_MODEL, max_tokens=2000, output_config={"effort": "low"},
+    response = client.messages.parse(model=JUDGE_MODEL, max_tokens=2000, output_config={"effort": "medium"},
                                      messages=[{"role": "user", "content": prompt}], output_format=JudgeScores)
     if ledger is not None:
         usage = UsageTotals()

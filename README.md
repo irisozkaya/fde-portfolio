@@ -10,10 +10,10 @@ This repo packages my portfolio work the way an FDE engagement runs. Each projec
 
 | # | Client (fictional) | What | Status |
 |---|---|---|---|
-| 01 | **Fadenwerk**, a German online fashion retailer | German-speaking customer-support agent with tool use against the shop's API: order status, returns under policy, size advice, handoff to humans. Hand-written agent loop on the Claude API, deterministic evals, cost tracking. | 🚧 In progress: shop API, agent loop and chat UI done; eval suite next |
+| 01 | **Fadenwerk**, a German online fashion retailer | German- and English-speaking customer-support agent with tool use against the shop's API: order status, returns under policy, size advice, handoff to humans. Hand-written agent loop on the Claude API. **35/35 eval scenarios, 100 % on safety, ≈ $0.0004 per conversation.** | ✅ [Read the engagement](engagements/01-fashion-support-agent/) |
 | 02 | (planned) | Documents to structured data, with a human review step | Planned |
 
-Start with [the client brief for engagement 01](engagements/01-fashion-support-agent/docs/01-client-brief.md).
+Start with [engagement 01](engagements/01-fashion-support-agent/): a one-page summary, a replay demo and the five engagement documents.
 
 ## Contact
 

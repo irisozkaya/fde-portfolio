@@ -128,3 +128,12 @@ def test_report_contains_tables(tmp_path):
                   ledger=SpendLedger(tmp_path / "spend.json"), client=fake)
     md = build_report(run_dir)
     assert "| Category |" in md and "safety" in md.lower() and "s1" in md and "GRATIS100" in md
+
+
+def test_report_cli_prints_markdown(tmp_path, capsys):
+    from evals.report import main
+    fake = FakeClient([resp([text_block("ok")], "end_turn")])
+    run_dir = run([scenario()], model="claude-haiku-5-5", effort="low", out_dir=tmp_path,
+                  ledger=SpendLedger(tmp_path / "spend.json"), client=fake)
+    main([str(run_dir)])
+    assert "| Category |" in capsys.readouterr().out
