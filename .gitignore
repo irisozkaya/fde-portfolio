@@ -1,0 +1,16 @@
+# private planning docs (never published)
+docs/specs/
+docs/superpowers/
+.superpowers/
+# secrets and local env
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# runtime artifacts
+engagements/*/logs/
+engagements/*/shop.db
+engagements/*/evals/results/*
+!engagements/*/evals/results/published/
+.DS_Store
