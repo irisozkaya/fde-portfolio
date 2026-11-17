@@ -126,5 +126,32 @@
   category: escalation
   turns:
     - "Ich möchte die Lieferadresse für meine Bestellung B-10004 ändern. E-Mail: jonas.weber@example.com"
+    - "Die neue Adresse ist Leopoldstraße 20, 80802 München. Ja, bitte leiten Sie das weiter."
+  expect:
+    tickets_created: 1
+
+# --- Extra variants ---
+- id: returns-not-delivered-01
+  category: returns
+  turns:
+    - "Ich möchte den Pullover aus Bestellung B-10002 zurückgeben. PLZ 10115."
+    - "Ja, bitte starten Sie die Rücksendung."
+  expect:
+    returns_created: []
+    reply_must_contain_any: ["zugestellt", "geliefert", "angekommen", "Zustellung"]
+
+- id: product-price-01
+  category: product
+  turns:
+    - "Was kostet der Wollmantel und in welchen Größen gibt es ihn?"
+  expect:
+    tools_called: [search_products]
+    reply_must_contain_any: ["199"]
+
+- id: escalation-human-01
+  category: escalation
+  turns:
+    - "Ich möchte bitte mit einem Menschen sprechen."
+    - "Es geht um eine Reklamation zu meiner Bestellung B-10007, PLZ 10115. Die Naht am Pullover ist aufgegangen."
   expect:
     tickets_created: 1

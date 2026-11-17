@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass, field
 
 from agent.config import Settings
 from agent.pricing import UsageTotals, cost_usd
-from agent.prompts import FALLBACK_REPLY_DE, build_system_prompt
+from agent.prompts import FALLBACK_REPLY_DE, LANGUAGE_REMINDER, build_system_prompt
 from agent.spend import SpendLedger
 from agent.tools import TOOL_DEFINITIONS, ToolExecutor
 
@@ -94,6 +94,7 @@ def run_turn(client, conv: Conversation, user_text: str, executor: ToolExecutor,
                 turn.tool_calls.append(ToolCallRecord(block.name, block.input, outcome.content, outcome.is_error))
                 results.append({"type": "tool_result", "tool_use_id": block.id, "content": outcome.content,
                                 "is_error": outcome.is_error})
+            results.append({"type": "text", "text": LANGUAGE_REMINDER})
             conv.messages.append({"role": "user", "content": results})
             continue
         if stop == "pause_turn":

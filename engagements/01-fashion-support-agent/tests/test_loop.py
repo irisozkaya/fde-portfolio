@@ -58,7 +58,7 @@ def test_tool_roundtrip(settings):
     turn = run_turn(client, Conversation(), "Wo ist B-10002? PLZ 10115", ex, settings)
     last = client.calls[1]["messages"][-1]
     assert last["role"] == "user"
-    assert [b["tool_use_id"] for b in last["content"]] == ["tu_1"]
+    assert [b["tool_use_id"] for b in last["content"] if b["type"] == "tool_result"] == ["tu_1"]
     assert last["content"][0]["type"] == "tool_result"
     assert turn.tool_calls[0].name == "lookup_order" and ex.calls[0][0] == "lookup_order"
     assert turn.reply_text == "Ihre Bestellung ist unterwegs."
@@ -72,7 +72,7 @@ def test_parallel_tool_results_in_one_message(settings):
     ])
     run_turn(client, Conversation(), "x", StubExecutor(), settings)
     last = client.calls[1]["messages"][-1]
-    assert [b["tool_use_id"] for b in last["content"]] == ["a", "b"]
+    assert [b["tool_use_id"] for b in last["content"] if b["type"] == "tool_result"] == ["a", "b"]
 
 
 def test_tool_error_flag_passed(settings):
@@ -159,3 +159,12 @@ def test_max_tokens_with_dangling_tool_use_keeps_history_valid(settings):
                if not isinstance(b, dict))
     run_turn(client, conv, "Neue Frage", StubExecutor(), settings)
     assert roles(conv) == ["user", "assistant", "user", "assistant"]
+
+
+def test_tool_results_message_ends_with_language_reminder(settings):
+    from agent.prompts import LANGUAGE_REMINDER
+    client = FakeClient([resp([tool_block("a", "get_policy", {})], "tool_use"), resp([text_block("ok")], "end_turn")])
+    run_turn(client, Conversation(), "How long can I return things?", StubExecutor(), settings)
+    content = client.calls[1]["messages"][-1]["content"]
+    assert [b["type"] for b in content] == ["tool_result", "text"]
+    assert content[-1]["text"] == LANGUAGE_REMINDER
