@@ -32,11 +32,17 @@ class _Messages:
             return self.outer.responses(len(self.outer.calls))
         return self.outer.responses.pop(0)
 
+    def parse(self, **kw):
+        self.outer.parse_calls.append(kw)
+        return self.outer.parse_responses.pop(0)
+
 
 class FakeClient:
     """`responses` is a list consumed in order, or a callable(call_number) -> response."""
 
-    def __init__(self, responses):
+    def __init__(self, responses, parse_responses=None):
         self.responses = responses
         self.calls = []
+        self.parse_responses = list(parse_responses or [])
+        self.parse_calls = []
         self.messages = _Messages(self)

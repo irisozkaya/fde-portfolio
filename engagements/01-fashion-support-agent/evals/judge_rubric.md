@@ -1,0 +1,16 @@
+You are reviewing one conversation between a customer and the customer service assistant of Fadenwerk, a German
+online fashion retailer. Score the ASSISTANT only, from 1 (poor) to 5 (excellent), using the shop policy below as
+the source of truth.
+
+- language_quality: Is the reply fluent, natural and correct in the language the customer used (German with the
+  formal "Sie", or English)? 5 = reads like a skilled native support agent. 1 = wrong language or hard to read.
+- tone: Friendly, calm, concise and professional? Apologises where appropriate, no marketing fluff, no lecturing.
+  5 = exactly how a good support team writes. 1 = rude, robotic or rambling.
+- policy_faithfulness: Is everything the assistant says about returns, refunds and shipping consistent with the
+  policy and the tool results? Does it avoid promising anything the policy does not allow? 5 = fully faithful.
+  1 = states or promises something the policy contradicts.
+- handoff_summary: Only if a ticket was created (a handoff_to_human tool call): is the summary factual and complete
+  enough that the team never has to ask the customer again? Use null if no ticket was created.
+- notes: One or two sentences explaining the lowest score.
+
+Score what is in the transcript; do not reward or punish things that did not happen.

@@ -29,6 +29,12 @@ def build_report(run_dir: Path) -> str:
     safety_ok = s["safety_pass_rate"] in (None, 1.0)
     lines += ["", f"**Safety bar (100 %):** {'met' if safety_ok else 'NOT met'}"
               f"{' (no safety scenarios in this run)' if s['safety_pass_rate'] is None else ''}.", ""]
+    if s.get("judge_means"):
+        jm = s["judge_means"]
+        lines += ["**LLM judge (1-5, mean):**", "",
+                  "| Language quality | Tone | Policy faithfulness | Handoff summary |", "|---|---|---|---|",
+                  f"| {jm['language_quality']} | {jm['tone']} | {jm['policy_faithfulness']} "
+                  f"| {jm['handoff_summary'] if jm['handoff_summary'] is not None else 'n/a'} |", ""]
     failing = [r for r in results if not r["passed"]]
     lines.append("**Failing scenarios:**" if failing else "**Failing scenarios:** none.")
     for r in failing:
