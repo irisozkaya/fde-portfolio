@@ -1,0 +1,130 @@
+# Core set. Fixture data: shop_api/fixtures.py (today = 2026-11-17).
+
+# --- Where is my order? ---
+- id: wismo-paid-01
+  category: wismo
+  turns:
+    - "Hallo, ist meine Bestellung B-10004 schon unterwegs? Meine E-Mail ist jonas.weber@example.com."
+  expect:
+    tools_called: [lookup_order]
+    reply_must_contain_any: ["noch nicht", "in Bearbeitung", "vorbereitet"]
+
+- id: wismo-cancelled-01
+  category: wismo
+  turns:
+    - "Was ist mit meiner Bestellung B-10006 los? PLZ 20095."
+  expect:
+    tools_called: [lookup_order]
+    reply_must_contain_any: ["storniert"]
+
+- id: wismo-delivered-01
+  category: wismo
+  turns:
+    - "Wurde meine Bestellung B-10007 schon zugestellt? Meine E-Mail ist anna.schmidt@example.com."
+  expect:
+    tools_called: [lookup_order]
+    reply_must_contain_any: ["zugestellt", "geliefert"]
+
+# --- Returns ---
+- id: returns-day30-01
+  category: returns
+  turns:
+    - "Kann ich den Pullover aus Bestellung B-10007 noch zurückgeben? PLZ 10115."
+    - "Ja, bitte starten Sie die Rücksendung, er kratzt."
+  expect:
+    returns_created: [{order_no: B-10007, line_nos: [1]}]
+
+- id: returns-final-sale-personalised-01
+  category: returns
+  comparison: true
+  turns:
+    - "Ich möchte die Steppjacke und die Sneaker aus Bestellung B-10005 zurückgeben. PLZ 20095."
+    - "Ja, bitte beides zurücksenden."
+  expect:
+    returns_created: []
+    reply_must_contain_any: ["Final Sale", "reduziert", "personalisiert"]
+
+- id: returns-refund-time-01
+  category: returns
+  turns:
+    - "Wie lange dauert es, bis ich nach einer Rücksendung mein Geld zurückbekomme?"
+  expect:
+    tools_called: [get_policy]
+    reply_must_contain_any: ["14"]
+
+- id: returns-verification-retry-01
+  category: returns
+  turns:
+    - "Ich möchte das Kleid aus Bestellung B-10001 zurückgeben. PLZ 10117."
+    - "Oh, Entschuldigung, die PLZ ist 10115."
+    - "Ja, bitte nur das Kleid zurücksenden."
+  expect:
+    returns_created: [{order_no: B-10001, line_nos: [1]}]
+
+# --- Size and fit ---
+- id: sizing-chino-01
+  category: sizing
+  comparison: true
+  turns:
+    - "Ich überlege, die Slim-Fit Chino zu bestellen. Meine Taille ist 80 cm, meine Hüfte 99 cm. Welche Größe passt?"
+  expect:
+    tools_called: [get_size_chart]
+    reply_must_contain_any: ["W32", "W34"]
+
+- id: sizing-shoes-01
+  category: sizing
+  turns:
+    - "Meine Füße sind 25,4 cm lang. Welche Größe empfehlen Sie bei den Sneakern mit Monogramm?"
+  expect:
+    tools_called: [get_size_chart]
+    reply_must_contain_any: ["40", "41"]
+
+# --- Product questions ---
+- id: product-material-01
+  category: product
+  turns:
+    - "Aus welchem Material ist der Wollmantel?"
+  expect:
+    tools_called: [search_products]
+    reply_must_contain_any: ["Wolle"]
+
+- id: product-sizes-01
+  category: product
+  turns:
+    - "Gibt es das Sommerkleid aus Leinen auch in Größe 44?"
+  expect:
+    tools_called: [search_products]
+    reply_must_contain_any: ["44"]
+
+- id: product-no-invented-care-01
+  category: product
+  turns:
+    - "Wie muss ich den Strickpullover aus Merinowolle waschen?"
+  expect:
+    tools_called: [search_products]
+    reply_must_not_contain: ["30 °C", "30 Grad", "40 Grad", "Handwäsche", "Wollwaschgang", "Wollprogramm"]
+
+# --- Handoff to a human ---
+- id: escalation-complaint-01
+  category: escalation
+  turns:
+    - "Ich bin total unzufrieden: Meine Bestellung B-10002 kommt schon wieder zu spät, und letztes Mal war die Naht kaputt. Ich möchte mich beschweren. PLZ 10115."
+  expect:
+    tickets_created: 1
+    ticket_reason: complaint
+
+- id: escalation-payment-01
+  category: escalation
+  comparison: true
+  turns:
+    - "Mir wurde die Bestellung B-10004 zweimal von Klarna abgebucht! Bitte klären Sie das. E-Mail: jonas.weber@example.com"
+  expect:
+    tickets_created: 1
+    ticket_reason: payment_dispute
+
+- id: escalation-address-change-01
+  category: escalation
+  turns:
+    - "Ich möchte die Lieferadresse für meine Bestellung B-10004 ändern. E-Mail: jonas.weber@example.com"
+  expect:
+    tickets_created: 1
