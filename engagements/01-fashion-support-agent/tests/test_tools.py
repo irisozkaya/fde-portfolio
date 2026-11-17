@@ -77,3 +77,16 @@ def test_execute_handoff_creates_ticket(executor, shop_http):
                                                 "order_no": "B-10002", "customer_email": None})
     assert out.is_error is False and "ticket_id" in json.loads(out.content)["data"]
     assert len(shop_http.get("/_state/tickets").json()) == 1
+
+
+def test_search_falls_back_to_single_words(executor):
+    """The shop's search is exact-substring; the agent often sends 'Sommerkleid Leinen'. Adapter must cope."""
+    out = executor.execute("search_products", {"query": "Sommerkleid Leinen", "category": "Kleider", "size": None})
+    skus = [p["sku"] for p in json.loads(out.content)["data"]]
+    assert out.is_error is False and skus and skus[0] == "P-1001"
+
+
+def test_search_word_fallback_ignores_stopwords(executor):
+    out = executor.execute("search_products", {"query": "Leinen und Kleid", "category": None, "size": None})
+    skus = [p["sku"] for p in json.loads(out.content)["data"]]
+    assert skus[0] == "P-1001" and len(skus) <= 5
