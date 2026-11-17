@@ -71,6 +71,25 @@ TOOL_DEFINITIONS: list[dict] = [
         "input_schema": _schema({"category": {"type": "string", "description": f"One of: {_CATEGORIES}."}}),
     },
     {
+        "name": "recommend_size",
+        "description": (
+            "Compare the customer's body measurements with the size chart of a category and get, per size, the "
+            "difference in cm (chart minus customer; negative = that size is smaller than the body, i.e. tighter), "
+            "the smallest size that is not smaller anywhere (recommended_size) and the closest size. Use it for every "
+            "size recommendation instead of comparing numbers yourself; quote its differences. Pass null for "
+            "measurements the customer did not give."),
+        "strict": True,
+        "input_schema": _schema({
+            "category": {"type": "string", "description": f"One of: {_CATEGORIES}."},
+            "bust_cm": {"type": ["number", "null"]},
+            "chest_cm": {"type": ["number", "null"]},
+            "waist_cm": {"type": ["number", "null"]},
+            "hip_cm": {"type": ["number", "null"]},
+            "underbust_cm": {"type": ["number", "null"]},
+            "foot_length_cm": {"type": ["number", "null"]},
+        }),
+    },
+    {
         "name": "get_policy",
         "description": "Get the official return, refund and shipping policy text. Use it for any policy question.",
         "strict": True,
@@ -119,6 +138,16 @@ class _SizeChartIn(_In):
     category: str
 
 
+class _RecommendIn(_In):
+    category: str
+    bust_cm: float | None = None
+    chest_cm: float | None = None
+    waist_cm: float | None = None
+    hip_cm: float | None = None
+    underbust_cm: float | None = None
+    foot_length_cm: float | None = None
+
+
 class _PolicyIn(_In):
     pass
 
@@ -164,6 +193,30 @@ def search_with_fallback(shop: ShopClient, query: str, category: str | None, siz
     return [e[3] for e in ranked[:_SEARCH_LIMIT]]
 
 
+class ToolInputError(Exception):
+    def __init__(self, code: str, details):
+        super().__init__(code)
+        self.code = code
+        self.details = details
+
+
+def recommend_size(chart: dict, measurements: dict) -> dict:
+    """Arithmetic the model should not do in its head: per-size differences, recommended and closest size."""
+    rows = chart["rows"]
+    used = [k for k, v in measurements.items() if v is not None and k in rows[0]]
+    if not used:
+        raise ToolInputError("no_matching_measurements",
+                             {"category": chart["category"], "chart_measurements": [k for k in rows[0] if k != "size"]})
+    out_rows = [{"size": r["size"], "difference_cm": {k: round(r[k] - measurements[k], 1) for k in used}}
+                for r in rows]
+    fitting = [r for r in out_rows if all(d >= 0 for d in r["difference_cm"].values())]
+    closest = min(out_rows, key=lambda r: max(abs(d) for d in r["difference_cm"].values()))
+    return {"category": chart["category"], "used_measurements": used,
+            "recommended_size": fitting[0]["size"] if fitting else None, "closest_size": closest["size"],
+            "rows": out_rows,
+            "note": "difference_cm = size chart minus customer; negative means the size is smaller (tighter)."}
+
+
 class ToolExecutor:
     def __init__(self, shop: ShopClient):
         self.shop = shop
@@ -173,6 +226,8 @@ class ToolExecutor:
                                                                     a.reason)),
             "search_products": (_SearchIn, lambda a: search_with_fallback(shop, a.query, a.category, a.size)),
             "get_size_chart": (_SizeChartIn, lambda a: shop.get_size_chart(a.category)),
+            "recommend_size": (_RecommendIn, lambda a: recommend_size(shop.get_size_chart(a.category),
+                                                                      a.model_dump(exclude={"category"}))),
             "get_policy": (_PolicyIn, lambda a: shop.get_policy()),
             "handoff_to_human": (_HandoffIn, lambda a: shop.create_ticket(a.reason, a.summary, a.order_no,
                                                                           a.customer_email)),
@@ -189,6 +244,8 @@ class ToolExecutor:
             return ToolOutcome(_dump({"error": "invalid_input", "details": details}), True)
         try:
             return ToolOutcome(_dump({"data": handler(args)}), False)
+        except ToolInputError as e:
+            return ToolOutcome(_dump({"error": e.code, "details": e.details}), True)
         except ShopError as e:
             return ToolOutcome(_dump({"error": e.payload.get("error"), "details": e.payload.get("details")}), True)
         except httpx.HTTPError as e:

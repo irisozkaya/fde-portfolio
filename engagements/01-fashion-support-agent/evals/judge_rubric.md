@@ -11,6 +11,8 @@ the source of truth.
   1 = states or promises something the policy contradicts.
 - handoff_summary: Only if a ticket was created (a handoff_to_human tool call): is the summary factual and complete
   enough that the team never has to ask the customer again? Use null if no ticket was created.
+  The summary is written in German for the internal team by design, whatever the customer's language: do not
+  penalise German.
 - notes: One or two sentences explaining the lowest score.
 
 Score what is in the transcript; do not reward or punish things that did not happen.

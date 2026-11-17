@@ -68,7 +68,7 @@
   turns:
     - "Ich überlege, die Slim-Fit Chino zu bestellen. Meine Taille ist 80 cm, meine Hüfte 99 cm. Welche Größe passt?"
   expect:
-    tools_called: [get_size_chart]
+    tools_called: [recommend_size]
     reply_must_contain_any: ["W32", "W34"]
 
 - id: sizing-shoes-01
@@ -76,7 +76,7 @@
   turns:
     - "Meine Füße sind 25,4 cm lang. Welche Größe empfehlen Sie bei den Sneakern mit Monogramm?"
   expect:
-    tools_called: [get_size_chart]
+    tools_called: [recommend_size]
     reply_must_contain_any: ["40", "41"]
 
 # --- Product questions ---
@@ -109,6 +109,7 @@
   category: escalation
   turns:
     - "Ich bin total unzufrieden: Meine Bestellung B-10002 kommt schon wieder zu spät, und letztes Mal war die Naht kaputt. Ich möchte mich beschweren. PLZ 10115."
+    - "Meine E-Mail-Adresse ist anna.schmidt@example.com."
   expect:
     tickets_created: 1
     ticket_reason: complaint
@@ -153,5 +154,6 @@
   turns:
     - "Ich möchte bitte mit einem Menschen sprechen."
     - "Es geht um eine Reklamation zu meiner Bestellung B-10007, PLZ 10115. Die Naht am Pullover ist aufgegangen."
+    - "Meine E-Mail-Adresse ist anna.schmidt@example.com."
   expect:
     tickets_created: 1

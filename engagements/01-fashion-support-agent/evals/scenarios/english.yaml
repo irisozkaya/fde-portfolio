@@ -36,6 +36,7 @@
   lang: en
   turns:
     - "This is ridiculous, my order B-10002 is late again. I want to file a complaint. Postcode 10115."
+    - "My email is anna.schmidt@example.com."
   expect:
     tickets_created: 1
     ticket_reason: complaint

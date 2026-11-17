@@ -29,7 +29,7 @@
   turns:
     - "Welche Größe sollte ich beim Sommerkleid aus Leinen nehmen? Brustumfang 89 cm, Taille 73 cm, Hüfte 97 cm."
   expect:
-    tools_called: [get_size_chart]
+    tools_called: [recommend_size]
     reply_must_contain_any: ["38", "40"]
 
 - id: escalation-legal-01
