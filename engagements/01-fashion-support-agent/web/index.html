@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fadenwerk Kundenservice (Demo)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="banner">Simulated engagement: fictional company, synthetic data</div>
+  <main class="layout">
+    <section class="chat">
+      <header class="chat-head">
+        <div>
+          <h1>Fadenwerk</h1>
+          <p>Kundenservice-Assistent</p>
+        </div>
+        <div class="head-actions">
+          <label class="toggle"><input type="checkbox" id="hood-toggle"> Under the hood</label>
+          <button id="reset" class="ghost">Neues Gespräch</button>
+        </div>
+      </header>
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="msg bot">Guten Tag! Wie kann ich Ihnen helfen? Ich beantworte Fragen zu Bestellungen, Rücksendungen, Größen und Produkten.</div>
+      </div>
+      <form id="composer" class="composer">
+        <input id="input" autocomplete="off" placeholder="Ihre Nachricht …" required>
+        <button type="submit">Senden</button>
+      </form>
+    </section>
+    <aside id="hood" class="hood" hidden>
+      <h2>Under the hood</h2>
+      <p class="muted">Tool calls, tokens, cost and latency for each turn.</p>
+      <div id="turns"></div>
+    </aside>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
