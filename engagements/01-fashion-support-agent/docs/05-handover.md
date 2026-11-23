@@ -26,8 +26,8 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." > .env          # your own key; .env is giti
 
 ```bash
 .venv/bin/pytest                                       # unit tests: no API calls, run in CI on every push
-.venv/bin/python -m evals.runner --subset smoke        # 5 scenarios, ~$0.003
-.venv/bin/python -m evals.runner --subset all --judge  # 35 scenarios + LLM judge, ~$0.03
+.venv/bin/python -m evals.runner --subset smoke        # 5 scenarios, ~$0.005
+.venv/bin/python -m evals.runner --subset all --judge  # 35 scenarios + LLM judge, ~$0.04
 .venv/bin/python -m evals.report evals/results/<run_dir>  # Markdown summary of one run
 ```
 
@@ -37,16 +37,16 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." > .env          # your own key; .env is giti
 
 ## Cost and latency (measured)
 
-From three repeat runs of the full suite (105 conversations, 153 customer turns) on `claude-haiku-5-5`, effort `low`:
+From three independent runs of the full suite (105 conversations, 156 customer turns) on `claude-haiku-5-5`, effort `low`. The runs were spaced longer than the prompt-cache lifetime, so no run reused another run's conversations:
 
 | Metric | Value |
 |---|---|
-| Cost per conversation | ≈ $0.0004 (max $0.0009) |
-| Cost per customer turn | ≈ $0.0003 |
-| Cost for 10,000 conversations | ≈ $4 |
-| Latency per customer turn | p50 3.1 s · p90 4.6 s |
-| Model requests per customer turn | 1.9 on average (tool call, then answer) |
-| Share of input tokens served from the prompt cache | 96 % |
+| Cost per conversation | ≈ $0.00085 (max $0.0014) |
+| Cost per customer turn | ≈ $0.0006 |
+| Cost for 10,000 conversations | ≈ $8.50 |
+| Latency per customer turn | p50 3.4 s · p90 4.7 s |
+| Model requests per customer turn | 1.85 on average (tool call, then answer) |
+| Share of input tokens served from the prompt cache | 62 % |
 
 Prices are from the Anthropic pricing page (checked 2026-11-17) and live in `agent/pricing.py`. Update them there when prices change.
 
@@ -56,7 +56,8 @@ Prices are from the Anthropic pricing page (checked 2026-11-17) and live in `age
 - **No customer accounts.** Verification is order number + postcode or email. A logged-in chat would remove that step.
 - **Tickets are fire-and-forget.** The shop API cannot update a ticket, so details a customer adds afterwards stay in the chat transcript.
 - **The eval set is small (35 scenarios).** It covers the main paths and the known risks, not the long tail. Real transcripts should grow it.
-- **Legal-threat tickets can be thin.** They escalate immediately, without asking for an email first. This is by design.
+- **Legal threats need an email.** The agent asks only for the email, then escalates. If the customer will not give one, the ticket has no way to reach them.
+- **The $5 cap is enforced by the eval runner only.** The chat server records spend in the same ledger but does not stop at the cap; a deployment needs the daily cap described below.
 
 ## Next steps
 
