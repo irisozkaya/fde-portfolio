@@ -1,5 +1,7 @@
 # FDE Portfolio: Iris Özkaya
 
+[![tests](https://github.com/irisozkaya/fde-portfolio/actions/workflows/tests.yml/badge.svg)](https://github.com/irisozkaya/fde-portfolio/actions/workflows/tests.yml)
+
 > **Simulated engagements: fictional companies, synthetic data.**
 
 I'm a data scientist moving into **forward deployed engineering**: taking a client's messy problem, building an AI system against their real systems, measuring it, and handing it over. Today I build ML and data products at a German fashion retailer. I also co-founded VergiLex, an AI research assistant for Turkish tax law, where I own the data and retrieval layer.
