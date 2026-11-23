@@ -56,3 +56,10 @@ def test_index_has_label(setup):
     r = http.get("/")
     assert r.status_code == 200 and "Simulated engagement" in r.text
     assert "<script src=\"http" not in r.text
+
+
+@pytest.mark.parametrize("message", ["", "   \n"])
+def test_chat_rejects_empty_message_without_calling_model(setup, message):
+    http, fake, _ = setup
+    r = http.post("/api/chat", json={"conversation_id": None, "message": message})
+    assert r.status_code == 422 and fake.calls == []

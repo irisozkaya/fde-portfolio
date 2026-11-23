@@ -1,10 +1,11 @@
 """Chat API + static UI. Conversations live in memory; every turn is logged to logs/conversations.jsonl."""
 import json
 from pathlib import Path
+from typing import Annotated
 
 from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
 
 from agent.config import Settings
 from agent.loop import Conversation, run_turn
@@ -17,7 +18,7 @@ WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
 class ChatRequest(BaseModel):
     conversation_id: str | None = None
-    message: str
+    message: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class ResetRequest(BaseModel):

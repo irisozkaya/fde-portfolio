@@ -168,3 +168,30 @@ def test_tool_results_message_ends_with_language_reminder(settings):
     content = client.calls[1]["messages"][-1]["content"]
     assert [b["type"] for b in content] == ["tool_result", "text"]
     assert content[-1]["text"] == LANGUAGE_REMINDER
+
+
+def _connection_error():
+    import anthropic
+    import httpx
+    return anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com/v1/messages"))
+
+
+def test_api_error_mid_turn_falls_back_keeps_history_valid_and_bills(settings):
+    # A failing request (overload, rate limit after SDK retries, network) must not leave two user messages in a
+    # row, which would make every later request fail with a 400; requests already made must still be billed.
+    def responses(n):
+        if n == 1:
+            return resp([tool_block("t1", "get_policy", {})], "tool_use")
+        if n == 2:
+            raise _connection_error()
+        return resp([text_block("Wie kann ich helfen?")], "end_turn")
+    client = FakeClient(responses)
+    ledger = SpendLedger(settings.ledger_path)
+    conv = Conversation()
+    turn = run_turn(client, conv, "Frage", StubExecutor(), settings, ledger=ledger)
+    assert turn.stop_reason == "api_error" and turn.reply_text == FALLBACK_REPLY_DE
+    assert roles(conv) == ["user", "assistant", "user", "assistant"]
+    assert turn.cost_usd > 0 and ledger.total() == pytest.approx(turn.cost_usd)
+    run_turn(client, conv, "Hallo?", StubExecutor(), settings)
+    sent = [m["role"] for m in client.calls[-1]["messages"]]
+    assert all(a != b for a, b in zip(sent, sent[1:]))

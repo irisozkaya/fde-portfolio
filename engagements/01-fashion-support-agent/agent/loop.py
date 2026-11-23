@@ -1,11 +1,13 @@
 """The agent loop, written by hand on the Anthropic Messages API.
 
 History is append-only: assistant content goes back exactly as the API returned it (thinking blocks included),
-every tool_use gets a tool_result in ONE following user message, and abnormal endings append a fixed fallback
-reply so the conversation stays valid for the next turn.
+every tool_use gets a tool_result in ONE following user message, and abnormal endings (refusal, cut-off tool
+call, iteration limit, API error) append a fixed fallback reply so the conversation stays valid for the next turn.
 """
 import time
 import uuid
+
+import anthropic
 from dataclasses import asdict, dataclass, field
 
 from agent.config import Settings
@@ -62,16 +64,22 @@ def run_turn(client, conv: Conversation, user_text: str, executor: ToolExecutor,
     conv.messages.append({"role": "user", "content": user_text})
 
     for _ in range(settings.max_tool_iterations):
-        response = client.messages.create(
-            model=settings.model,
-            max_tokens=settings.max_tokens,
-            system=build_system_prompt(),
-            tools=TOOL_DEFINITIONS,
-            messages=conv.messages,
-            thinking={"type": "adaptive"},
-            output_config={"effort": settings.effort},
-            cache_control={"type": "ephemeral"},
-        )
+        try:
+            response = client.messages.create(
+                model=settings.model,
+                max_tokens=settings.max_tokens,
+                system=build_system_prompt(),
+                tools=TOOL_DEFINITIONS,
+                messages=conv.messages,
+                thinking={"type": "adaptive"},
+                output_config={"effort": settings.effort},
+                cache_control={"type": "ephemeral"},
+            )
+        except anthropic.APIError:
+            # Still failing after the SDK's own retries. The last message is always a user message here, so the
+            # fallback keeps roles alternating; requests that did succeed are billed below.
+            _fallback(conv, turn, "api_error")
+            break
         turn.api_requests += 1
         turn.usage.add(response.usage)
         stop = response.stop_reason

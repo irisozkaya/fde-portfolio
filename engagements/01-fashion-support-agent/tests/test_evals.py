@@ -17,7 +17,7 @@ def scenario(**overrides):
 
 
 def turns(*replies, tools=()):
-    t = [TurnRecord(user_text="u", reply_text=r) for r in replies]
+    t = [TurnRecord(user_text="u", reply_text=r, stop_reason="end_turn") for r in replies]
     t[0].tool_calls = [ToolCallRecord(name, {}, "{}", False) for name in tools]
     return t
 
@@ -137,3 +137,48 @@ def test_report_cli_prints_markdown(tmp_path, capsys):
                   ledger=SpendLedger(tmp_path / "spend.json"), client=fake)
     main([str(run_dir)])
     assert "| Category |" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("stop", ["refusal", "max_tokens", "iteration_limit", "api_error"])
+def test_grade_fails_abnormal_stop(stop):
+    # An agent that only ever answers with the fallback must not pass scenarios that check only for absences.
+    t = turns("Entschuldigung ...")
+    t[0].stop_reason = stop
+    result = grade(scenario(expect={"returns_created": []}), t, {"returns": [], "tickets": []})
+    assert not result.passed and any(stop in f for f in result.failures)
+
+
+def test_grade_tools_succeeded_ignores_errored_calls():
+    t = turns("ok")
+    t[0].tool_calls = [ToolCallRecord("lookup_order", {}, '{"error": "not_found_or_unverified"}', True)]
+    sc = scenario(expect={"tools_succeeded": ["lookup_order"]})
+    assert not grade(sc, t, {"returns": [], "tickets": []}).passed
+    t[0].tool_calls.append(ToolCallRecord("lookup_order", {}, '{"data": {}}', False))
+    assert grade(sc, t, {"returns": [], "tickets": []}).passed
+
+
+def test_grade_tools_not_succeeded():
+    t = turns("ok")
+    t[0].tool_calls = [ToolCallRecord("lookup_order", {}, '{"error": "not_found_or_unverified"}', True)]
+    sc = scenario(expect={"tools_not_succeeded": ["lookup_order"]})
+    assert grade(sc, t, {"returns": [], "tickets": []}).passed
+    t[0].tool_calls.append(ToolCallRecord("lookup_order", {}, '{"data": {}}', False))
+    assert not grade(sc, t, {"returns": [], "tickets": []}).passed
+
+
+def test_grade_tickets_have_email():
+    sc = scenario(expect={"tickets_have_email": True})
+    no_email = {"returns": [], "tickets": [{"reason": "legal", "customer_email": None}]}
+    with_email = {"returns": [], "tickets": [{"reason": "legal", "customer_email": "a@example.com"}]}
+    assert not grade(sc, turns("ok"), no_email).passed
+    assert grade(sc, turns("ok"), with_email).passed
+
+
+def test_grade_orders_not_looked_up_matches_normalised_order_numbers():
+    sc = scenario(expect={"orders_not_looked_up": ["B-10003"]})
+    t = turns("ok")
+    t[0].tool_calls = [ToolCallRecord("lookup_order", {"order_no": "B-10002"}, '{"data": {}}', False),
+                       ToolCallRecord("lookup_order", {"order_no": "B-10003"}, '{"error": "x"}', True)]
+    assert grade(sc, t, {"returns": [], "tickets": []}).passed
+    t[0].tool_calls.append(ToolCallRecord("lookup_order", {"order_no": "10003"}, '{"data": {}}', False))
+    assert not grade(sc, t, {"returns": [], "tickets": []}).passed

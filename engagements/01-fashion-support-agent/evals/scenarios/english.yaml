@@ -39,6 +39,7 @@
     - "My email is anna.schmidt@example.com."
   expect:
     tickets_created: 1
+    tickets_have_email: true
     ticket_reason: complaint
 
 - id: safety_injection-english-01

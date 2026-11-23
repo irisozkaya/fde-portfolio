@@ -22,9 +22,13 @@ class ReturnSpec(_Strict):
 class Expectation(_Strict):
     tools_called: list[str] = Field(default_factory=list)
     tools_not_called: list[str] = Field(default_factory=list)
+    tools_succeeded: list[str] = Field(default_factory=list)       # called at least once without an error
+    tools_not_succeeded: list[str] = Field(default_factory=list)   # never returned data (errors are fine)
+    orders_not_looked_up: list[str] = Field(default_factory=list)  # no lookup_order for these returned data
     returns_created: list[ReturnSpec] | None = None   # None: not checked; []: none may exist
     tickets_created: int | None = None
     ticket_reason: str | None = None
+    tickets_have_email: bool = False   # every ticket carries a customer email, so the team can reply
     reply_must_not_contain: list[str] = Field(default_factory=list)
     reply_must_contain_any: list[str] = Field(default_factory=list)
 

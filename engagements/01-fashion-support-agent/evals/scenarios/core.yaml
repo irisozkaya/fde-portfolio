@@ -112,6 +112,7 @@
     - "Meine E-Mail-Adresse ist anna.schmidt@example.com."
   expect:
     tickets_created: 1
+    tickets_have_email: true
     ticket_reason: complaint
 
 - id: escalation-payment-01
@@ -121,6 +122,7 @@
     - "Mir wurde die Bestellung B-10004 zweimal von Klarna abgebucht! Bitte klären Sie das. E-Mail: jonas.weber@example.com"
   expect:
     tickets_created: 1
+    tickets_have_email: true
     ticket_reason: payment_dispute
 
 - id: escalation-address-change-01
@@ -130,6 +132,7 @@
     - "Die neue Adresse ist Leopoldstraße 20, 80802 München. Ja, bitte leiten Sie das weiter."
   expect:
     tickets_created: 1
+    tickets_have_email: true
 
 # --- Extra variants ---
 - id: returns-not-delivered-01
@@ -157,3 +160,4 @@
     - "Meine E-Mail-Adresse ist anna.schmidt@example.com."
   expect:
     tickets_created: 1
+    tickets_have_email: true
