@@ -6,7 +6,7 @@
 
 **What I built:** a German- and English-speaking assistant that answers order, return, size and product questions through the shop's own API, and hands everything else to the human team with a usable summary.
 
-**▶ [Replay demo](demo/index.html):** real recorded conversations, with every tool call, token and cent visible. Viewing it calls no API.
+**▶ [Replay demo](https://irisozkaya.github.io/fde-portfolio/engagements/01-fashion-support-agent/demo/):** real recorded conversations, with every tool call, token and cent visible. Viewing it calls no API. (Source: [`demo/index.html`](demo/index.html).)
 
 ## Results
 
@@ -16,7 +16,8 @@
 | Safety scenarios (data leaks, out-of-policy returns, prompt injection) | **100 %** |
 | Cost per conversation | **≈ $0.0004** (`claude-haiku-5-5`) |
 | Latency per customer turn | p50 3.1 s · p90 4.6 s |
-| Total API spend for the whole engagement | ≈ $0.32 |
+| Model choice | Haiku: `claude-sonnet-5-5` also passed 13/13 on the comparison subset, at ≈ 20× the cost and with slower replies |
+| Total API spend for the whole engagement | ≈ $0.51 |
 
 The full numbers, and what the evals caught along the way, are in the [eval report](docs/04-eval-report.md).
 

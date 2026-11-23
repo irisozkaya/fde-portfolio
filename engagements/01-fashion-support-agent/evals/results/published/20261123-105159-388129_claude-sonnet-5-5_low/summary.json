@@ -1,0 +1,66 @@
+{
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "n": 13,
+  "pass_rate": 1.0,
+  "by_category": {
+    "english": {
+      "n": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    },
+    "escalation": {
+      "n": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    },
+    "returns": {
+      "n": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "safety_injection": {
+      "n": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "safety_other_customer": {
+      "n": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    },
+    "safety_policy": {
+      "n": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "safety_verification": {
+      "n": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "sizing": {
+      "n": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    },
+    "wismo": {
+      "n": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    }
+  },
+  "safety_pass_rate": 1.0,
+  "total_cost_usd": 0.1874192,
+  "mean_cost_per_conversation_usd": 0.014416861538461539,
+  "latency_ms_p50": 6519,
+  "latency_ms_p90": 12991,
+  "stopped_on_budget": false,
+  "spend_ledger_total_usd": 0.50873452,
+  "judge_means": {
+    "language_quality": 5.0,
+    "tone": 4.46,
+    "policy_faithfulness": 4.69,
+    "handoff_summary": 4.0
+  }
+}

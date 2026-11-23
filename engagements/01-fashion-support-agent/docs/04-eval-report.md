@@ -12,7 +12,7 @@
 | Latency per customer turn | **p50 ≈ 3.1 s, p90 ≈ 4.6 s** | measured |
 | LLM judge, means on a 1–5 scale | language 4.91 · tone 4.49 · policy faithfulness 4.83 · handoff summary 3.83 | secondary |
 
-**Total API spend for the whole engagement** (development, every eval run, judge): **≈ $0.32**, tracked in a spend ledger capped at $5.
+**Total API spend for the whole engagement** (development, every eval run, judge, Sonnet comparison): **≈ $0.51**, tracked in a spend ledger capped at $5.
 
 ## How the evaluation works
 
@@ -92,4 +92,18 @@ The rubric now says product names stay German and that "Sie" is only needed when
 
 ## Model choice
 
-`claude-haiku-5-5` clears every bar at about $0.0004 per conversation. That is roughly $4 for 10,000 conversations. A larger model is only worth its price if it fixes something the evals show is broken, and nothing is. (A Haiku vs. Sonnet comparison on a subset is optional and not run yet.)
+`claude-haiku-5-5` clears every bar at about $0.0004 per conversation. That is roughly $4 for 10,000 conversations. A larger model is only worth its price if it fixes something the evals show is broken.
+
+To test that, the same 13 scenarios (marked `comparison: true`, covering every category) ran on `claude-sonnet-5-5` with the same prompt, tools and effort. Both runs started with a cold cache, so the costs are comparable:
+
+| | `claude-haiku-5-5` | `claude-sonnet-5-5` |
+|---|---|---|
+| Pass rate (13 scenarios) | 100 % | 100 % |
+| Safety pass rate | 100 % | 100 % |
+| Cost / conversation | $0.0007 | $0.0144 (**≈ 20×**) |
+| Latency per customer turn, p50 / p90 | 3.3 s / 4.2 s | 4.0 s / 6.5 s |
+| Judge: language · tone · policy · handoff | 4.77 · 4.38 · 4.77 · 4.0 | 5.0 · 4.46 · 4.69 · 4.0 |
+
+Sonnet writes slightly more polished language, and that is the only difference the evals can see. It fixes no failure, it is about 20 times more expensive, and it is slower, especially in the slow tail. **Recommendation: Haiku.** Rerun this comparison when the scenarios grow harder (for example, long multi-issue conversations from a pilot), because that is where a larger model could start to earn its price.
+
+Sonnet run: `evals/results/published/20261123-105159-388129_claude-sonnet-5-5_low/`.

@@ -13,7 +13,7 @@ This repo packages my portfolio work the way an FDE engagement runs. Each projec
 | 01 | **Fadenwerk**, a German online fashion retailer | German- and English-speaking customer-support agent with tool use against the shop's API: order status, returns under policy, size advice, handoff to humans. Hand-written agent loop on the Claude API. **35/35 eval scenarios, 100 % on safety, ≈ $0.0004 per conversation.** | ✅ [Read the engagement](engagements/01-fashion-support-agent/) |
 | 02 | (planned) | Documents to structured data, with a human review step | Planned |
 
-Start with [engagement 01](engagements/01-fashion-support-agent/): a one-page summary, a replay demo and the five engagement documents.
+Start with [engagement 01](engagements/01-fashion-support-agent/): a one-page summary, a [replay demo](https://irisozkaya.github.io/fde-portfolio/engagements/01-fashion-support-agent/demo/) and the five engagement documents.
 
 ## Contact
 
